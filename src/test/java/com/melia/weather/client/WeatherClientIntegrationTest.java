@@ -11,8 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -21,38 +21,38 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 @ActiveProfiles("test")
 @EnableConfigurationProperties
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { WireMockConfig.class })
+@AutoConfigureWireMock(port = 9561)
 class WeatherClientIntegrationTest {
 
 	@Autowired
-	private WireMockServer mockBooksService;
+	private WireMockServer wireMockServer;
 
 	@Autowired
 	private WeatherClient weatherClient;
 
 	@BeforeEach
 	void setUp() throws IOException {
-		CityMock.setupMockCityResponse(mockBooksService);
-		WeatherMock.setupMockWeatherResponse(mockBooksService);
+		CityMock.setupMockCityResponse(wireMockServer);
+		WeatherMock.setupMockWeatherResponse(wireMockServer);
 	}
 
 	@Test
-	public void whenGetCity_thenCityShouldBeReturned() {
+	void whenGetCity_thenCityShouldBeReturned() {
 		assertFalse(weatherClient.getCity("Madrid").isEmpty());
 	}
 
 	@Test
-	public void whenGetCity_thenTheCorrectCityShouldBeReturned() {
+	void whenGetCity_thenTheCorrectCityShouldBeReturned() {
 		assertTrue(weatherClient.getCity("Madrid").stream().anyMatch(c -> c.getWoeid().equals("766273")));
 	}
 
 	@Test
-	public void whenGetWeather_thenCityShouldBeReturned() {
+	void whenGetWeather_thenCityShouldBeReturned() {
 		assertFalse(weatherClient.getWeather("766273").getWeatherList().isEmpty());
 	}
 
 	@Test
-	public void whenGetWeather_thenTheCorrectWeatherShouldBeReturned() {
+	void whenGetWeather_thenTheCorrectWeatherShouldBeReturned() {
 		assertTrue(weatherClient.getWeather("766273").getWeatherList().stream()
 				.anyMatch(w -> w.getApplicableDate().equals("2021-03-01") && w.getWeatherStateName().equals("Heavy Rain")));
 	}

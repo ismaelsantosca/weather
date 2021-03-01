@@ -12,7 +12,7 @@ public class WireMockConfig {
 
 	@Bean(initMethod = "start", destroyMethod = "stop")
 	public WireMockServer mockWeatherService() {
-		return new WireMockServer(9561);
+		return new WireMockServer();
 	}
 
 }
